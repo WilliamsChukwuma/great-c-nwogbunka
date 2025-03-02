@@ -1,6 +1,6 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Phone } from 'lucide-react';
 import { Button } from './button';
 
 interface Category {
@@ -93,6 +93,23 @@ const ProductCategories = () => {
   return (
     <div id="products" ref={sectionRef} className="bg-white py-24 sm:py-32">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div 
+          className={`mb-12 p-6 rounded-lg border border-primary/20 bg-primary/5 text-center transition-all duration-700 ${
+            isVisible ? 'opacity-100 transform-none' : 'opacity-0 translate-y-6'
+          }`}
+        >
+          <p className="text-gray-800 text-lg">
+            Due to the current situation, we are unable to display our pricing and products. But that's not an issue - 
+            <a 
+              href="#contact" 
+              className="inline-flex items-center font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 rounded ml-1"
+            >
+              reach out to us <Phone className="ml-1 h-4 w-4" /> 
+            </a> 
+            for further inquiries and pricing.
+          </p>
+        </div>
+
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-20">
           <p className="inline-block px-3 py-1 text-sm font-medium bg-primary/10 text-primary rounded-full mb-5">
             Our Product Categories
