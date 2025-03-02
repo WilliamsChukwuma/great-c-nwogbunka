@@ -1,4 +1,3 @@
-
 import { Facebook, Instagram, Twitter, Linkedin, Youtube, MapPin } from 'lucide-react';
 
 const Footer = () => {
@@ -42,8 +41,9 @@ const Footer = () => {
             <div className="flex items-start space-x-3">
               <MapPin className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
               <p className="text-gray-300">
-                123 Lekki-Epe Expressway<br />
-                Lagos, Nigeria
+                Great C Nwogbunka Building Materials,<br />
+                72 Rahabitation road, Emene 400104,<br />
+                Enugu, Nigeria
               </p>
             </div>
           </div>

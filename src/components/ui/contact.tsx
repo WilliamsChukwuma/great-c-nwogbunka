@@ -56,12 +56,12 @@ const Contact = () => {
     { 
       icon: <MapPin className="h-6 w-6" />, 
       title: "Visit Us", 
-      details: ["123 Lekki-Epe Expressway", "Lagos, Nigeria"]
+      details: ["Great C Nwogbunka Building Materials,", "72 Rahabitation road, Emene 400104,", "Enugu, Nigeria"]
     },
     { 
       icon: <Phone className="h-6 w-6" />, 
       title: "Call Us", 
-      details: ["+234 123 456 7890", "+234 987 654 3210"]
+      details: ["+2347066077173", "+2348035051715"]
     },
     { 
       icon: <Mail className="h-6 w-6" />, 
