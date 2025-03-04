@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Button } from './button';
@@ -28,7 +27,6 @@ const Hero = () => {
 
   return (
     <div ref={heroRef} className="relative min-h-screen overflow-hidden flex items-center pt-16">
-      {/* Background decorative elements */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <div className="absolute top-1/4 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-70 parallax" data-speed="-0.1"></div>
         <div className="absolute bottom-1/4 -left-24 w-96 h-96 bg-brand-200/30 rounded-full blur-3xl opacity-50 parallax" data-speed="0.05"></div>
@@ -59,9 +57,11 @@ const Hero = () => {
                 Shop Now
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
-              <Button size="lg" variant="outline">
-                Learn More
-              </Button>
+              <a href="#about">
+                <Button size="lg" variant="outline">
+                  Learn More
+                </Button>
+              </a>
             </div>
             
             <div className="grid grid-cols-3 gap-6 pt-4 border-t border-gray-200">
