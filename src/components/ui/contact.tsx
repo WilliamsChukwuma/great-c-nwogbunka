@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from 'react';
 import { Send, MapPin, Phone, Mail } from 'lucide-react';
 import { Button } from './button';
@@ -42,25 +41,20 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Prepare message content
     const messageContent = `New Inquiry from ${formState.name}:\n
 Phone: ${formState.phone}\n
 Email: ${formState.email}\n
 Message: ${formState.message}`;
     
-    // Create SMS links for both numbers
     const smsLink1 = `sms:+2348035051715?body=${encodeURIComponent(messageContent)}`;
     const smsLink2 = `sms:+2347066077173?body=${encodeURIComponent(messageContent)}`;
     
-    // Open first SMS link
     window.open(smsLink1, '_blank');
     
-    // After a short delay, open second SMS link
     setTimeout(() => {
       window.open(smsLink2, '_blank');
     }, 500);
 
-    // Reset form
     setFormState({
       name: '',
       email: '',
@@ -185,7 +179,7 @@ Message: ${formState.message}`;
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none"
-                    placeholder="John Doe"
+                    placeholder="Kenechukwu Okorie"
                   />
                 </div>
                 <div>
