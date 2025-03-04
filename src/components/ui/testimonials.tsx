@@ -1,63 +1,40 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
-interface Testimonial {
-  id: number;
+interface Review {
+  id: string;
   name: string;
-  role: string;
   company: string;
   content: string;
   rating: number;
-  image: string;
+  date: string;
 }
 
-const testimonials: Testimonial[] = [
-  {
-    id: 1,
-    name: "Chijioke Okonkwo",
-    role: "Project Manager",
-    company: "Lagos Construction Ltd",
-    content: "Great C Nwogbunka has been our trusted supplier for three major projects. Their materials are consistently high quality, and their delivery is always on time. We appreciate their professional approach and competitive pricing.",
-    rating: 5,
-    image: "https://randomuser.me/api/portraits/men/32.jpg"
-  },
-  {
-    id: 2,
-    name: "Amina Ibrahim",
-    role: "Architect",
-    company: "Modern Design Associates",
-    content: "As an architect, I need reliable materials that match my specifications perfectly. Great C Nwogbunka understands this and provides excellent consulting on material selection. Their attention to detail has made them our go-to supplier.",
-    rating: 5,
-    image: "https://randomuser.me/api/portraits/women/44.jpg"
-  },
-  {
-    id: 3,
-    name: "Emmanuel Adeyemi",
-    role: "Contractor",
-    company: "Adeyemi Builders",
-    content: "The bulk supply service from Great C Nwogbunka has transformed how we handle large projects. Their just-in-time delivery has helped us optimize our workflow and reduce storage costs. Highly recommended for any serious contractor.",
-    rating: 4,
-    image: "https://randomuser.me/api/portraits/men/22.jpg"
-  }
-];
-
 const Testimonials = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [reviews, setReviews] = useState<Review[]>(() => {
+    const savedReviews = localStorage.getItem('customer-reviews');
+    return savedReviews ? JSON.parse(savedReviews) : [];
+  });
+  
+  const [newReview, setNewReview] = useState({
+    name: '',
+    company: '',
+    content: '',
+    rating: 5
+  });
+  
   const [isVisible, setIsVisible] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
   
-  const handlePrev = () => {
-    setActiveIndex((prevIndex) => (
-      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
-    ));
-  };
-  
-  const handleNext = () => {
-    setActiveIndex((prevIndex) => (
-      prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
-    ));
-  };
+  // Save reviews to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('customer-reviews', JSON.stringify(reviews));
+  }, [reviews]);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -80,6 +57,53 @@ const Testimonials = () => {
     };
   }, []);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setNewReview(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleRatingChange = (rating: number) => {
+    setNewReview(prev => ({ ...prev, rating }));
+  };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newReview.name || !newReview.content) {
+      toast({
+        title: "Missing information",
+        description: "Please provide your name and review content.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const review: Review = {
+      id: Date.now().toString(),
+      ...newReview,
+      date: new Date().toLocaleDateString()
+    };
+    
+    setReviews(prev => [review, ...prev]);
+    setNewReview({
+      name: '',
+      company: '',
+      content: '',
+      rating: 5
+    });
+    
+    setIsFormOpen(false);
+    
+    toast({
+      title: "Review submitted",
+      description: "Thank you for sharing your experience!",
+    });
+  };
+  
+  const toggleForm = () => {
+    setIsFormOpen(prev => !prev);
+  };
+
   return (
     <div ref={sectionRef} className="py-24 sm:py-32 bg-brand-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -101,83 +125,139 @@ const Testimonials = () => {
           </p>
         </div>
         
-        <div className={`relative max-w-4xl mx-auto transition-all duration-1000 ${
-          isVisible ? 'opacity-100 transform-none' : 'opacity-0 translate-y-10'
+        <div className={`max-w-4xl mx-auto mb-12 transition-all duration-700 delay-300 ${
+          isVisible ? 'opacity-100 transform-none' : 'opacity-0 translate-y-4'
         }`}>
-          <div className="glass rounded-2xl p-8 sm:p-12 shadow-xl">
-            <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className="md:w-1/3">
-                <div className="relative">
-                  <div className="aspect-square rounded-xl overflow-hidden border-4 border-white shadow-lg">
-                    <img 
-                      src={testimonials[activeIndex].image} 
-                      alt={testimonials[activeIndex].name}
-                      className="w-full h-full object-cover" 
+          <Button 
+            onClick={toggleForm} 
+            size="lg" 
+            className="mx-auto block"
+          >
+            {isFormOpen ? "Cancel" : "Share Your Experience"}
+          </Button>
+        </div>
+        
+        {/* Review Form */}
+        {isFormOpen && (
+          <div className={`max-w-3xl mx-auto mb-16 transition-all duration-500 ${
+            isFormOpen ? 'opacity-100 transform-none' : 'opacity-0 -translate-y-4'
+          }`}>
+            <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
+              <h3 className="text-xl font-semibold mb-6 text-gray-900">Write a Review</h3>
+              
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Your Name *</label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={newReview.name}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      required
                     />
                   </div>
-                  <div className="absolute -bottom-5 -right-5 bg-white p-3 rounded-lg shadow-md">
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i}
-                          className={`h-4 w-4 ${i < testimonials[activeIndex].rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`} 
-                        />
-                      ))}
-                    </div>
+                  
+                  <div>
+                    <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">Company (Optional)</label>
+                    <input
+                      type="text"
+                      id="company"
+                      name="company"
+                      value={newReview.company}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
                   </div>
                 </div>
-              </div>
-              
-              <div className="md:w-2/3">
-                <blockquote>
-                  <p className="text-xl text-gray-700 italic leading-relaxed">
-                    "{testimonials[activeIndex].content}"
-                  </p>
-                  
-                  <footer className="mt-6">
-                    <div className="font-display text-xl font-semibold text-gray-900">
-                      {testimonials[activeIndex].name}
-                    </div>
-                    <div className="text-gray-600">
-                      {testimonials[activeIndex].role}, {testimonials[activeIndex].company}
-                    </div>
-                  </footer>
-                </blockquote>
-              </div>
-            </div>
-            
-            <div className="flex justify-between mt-8 pt-6 border-t border-gray-100">
-              <div className="flex gap-2">
-                {testimonials.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setActiveIndex(index)}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      activeIndex === index ? 'bg-primary scale-125' : 'bg-gray-300'
-                    }`}
-                    aria-label={`Go to testimonial ${index + 1}`}
+                
+                <div className="mb-6">
+                  <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">Your Review *</label>
+                  <textarea
+                    id="content"
+                    name="content"
+                    value={newReview.content}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    required
                   />
-                ))}
-              </div>
-              
-              <div className="flex gap-2">
-                <button 
-                  onClick={handlePrev}
-                  className="p-2 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
-                  aria-label="Previous testimonial"
-                >
-                  <ChevronLeft className="h-5 w-5 text-gray-700" />
-                </button>
-                <button 
-                  onClick={handleNext}
-                  className="p-2 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
-                  aria-label="Next testimonial"
-                >
-                  <ChevronRight className="h-5 w-5 text-gray-700" />
-                </button>
-              </div>
+                </div>
+                
+                <div className="mb-8">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => handleRatingChange(star)}
+                        className="focus:outline-none"
+                      >
+                        <Star
+                          className={`h-6 w-6 ${
+                            star <= newReview.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex justify-end">
+                  <Button type="button" variant="outline" className="mr-2" onClick={toggleForm}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    Submit Review
+                  </Button>
+                </div>
+              </form>
             </div>
           </div>
+        )}
+        
+        {/* Reviews Display */}
+        <div className={`space-y-8 max-w-4xl mx-auto transition-all duration-1000 ${
+          isVisible ? 'opacity-100 transform-none' : 'opacity-0 translate-y-10'
+        }`}>
+          {reviews.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-xl shadow-md">
+              <p className="text-gray-500 mb-4">No reviews yet. Be the first to share your experience!</p>
+              {!isFormOpen && (
+                <Button variant="outline" onClick={toggleForm}>
+                  Write a Review
+                </Button>
+              )}
+            </div>
+          ) : (
+            reviews.map((review) => (
+              <div key={review.id} className="bg-white rounded-xl shadow-md p-6 sm:p-8 transition hover:shadow-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+                  <div>
+                    <h3 className="font-semibold text-lg text-gray-900">{review.name}</h3>
+                    {review.company && (
+                      <p className="text-gray-600 text-sm">{review.company}</p>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i}
+                        className={`h-4 w-4 ${i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`} 
+                      />
+                    ))}
+                    <span className="ml-2 text-xs text-gray-500">{review.date}</span>
+                  </div>
+                </div>
+                
+                <p className="text-gray-700 leading-relaxed">"{review.content}"</p>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
