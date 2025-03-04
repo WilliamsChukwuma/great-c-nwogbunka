@@ -156,10 +156,12 @@ const ProductCategories = () => {
                   {category.description}
                 </p>
                 <div className="pt-4 border-t border-gray-100">
-                  <Button variant="ghost" className="p-0 h-auto text-primary hover:text-primary-600 group/btn">
-                    Shop Now
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
-                  </Button>
+                  <a href="#contact">
+                    <Button variant="ghost" className="p-0 h-auto text-primary hover:text-primary-600 group/btn">
+                      Shop Now
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                    </Button>
+                  </a>
                 </div>
               </div>
             </div>
@@ -167,9 +169,11 @@ const ProductCategories = () => {
         </div>
         
         <div className="text-center mt-16">
-          <Button size="lg" className="transition-all duration-700 delay-500" variant="outline">
-            View All Categories
-          </Button>
+          <a href="#contact">
+            <Button size="lg" className="transition-all duration-700 delay-500" variant="outline">
+              View All Categories
+            </Button>
+          </a>
         </div>
       </div>
     </div>

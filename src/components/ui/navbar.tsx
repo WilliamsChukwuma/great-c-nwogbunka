@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Search, Menu, X, ShoppingCart, User } from 'lucide-react';
 import { Button } from './button';
@@ -21,11 +20,9 @@ const Navbar = () => {
   }, []);
 
   return (
-    <header 
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/80 backdrop-blur-md shadow-sm' : 'bg-transparent'
-      }`}
-    >
+    <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+      isScrolled ? 'bg-white/80 backdrop-blur-md shadow-sm' : 'bg-transparent'
+    }`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
@@ -42,7 +39,7 @@ const Navbar = () => {
             <a href="#" className="font-medium text-gray-900 hover:text-primary transition-colors">
               Home
             </a>
-            <a href="#products" className="font-medium text-gray-900 hover:text-primary transition-colors">
+            <a href="#contact" className="font-medium text-gray-900 hover:text-primary transition-colors">
               Products
             </a>
             <a href="#about" className="font-medium text-gray-900 hover:text-primary transition-colors">
@@ -64,18 +61,20 @@ const Navbar = () => {
             <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
               <User className="h-5 w-5 text-gray-700" />
             </button>
-            <button className="p-2 rounded-full hover:bg-gray-100 transition-colors relative">
+            <a href="#contact" className="p-2 rounded-full hover:bg-gray-100 transition-colors relative">
               <ShoppingCart className="h-5 w-5 text-gray-700" />
               <span className="absolute top-0 right-0 h-4 w-4 bg-primary text-white text-xs flex items-center justify-center rounded-full">
                 0
               </span>
-            </button>
-            <Button className="ml-4">
-              Get a Quote
-            </Button>
+            </a>
+            <a href="#contact">
+              <Button className="ml-4">
+                Get a Quote
+              </Button>
+            </a>
           </div>
           
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu */}
           <div className="md:hidden flex items-center space-x-4">
             <button className="p-2 rounded-full hover:bg-gray-100 transition-colors relative">
               <ShoppingCart className="h-5 w-5 text-gray-700" />
@@ -97,14 +96,14 @@ const Navbar = () => {
         </div>
       </div>
       
-      {/* Mobile Menu */}
+      {/* Mobile Menu Panel */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white border-t">
           <div className="container mx-auto px-4 py-4 space-y-1">
             <a href="#" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
               Home
             </a>
-            <a href="#products" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
+            <a href="#contact" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
               Products
             </a>
             <a href="#about" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
@@ -117,9 +116,11 @@ const Navbar = () => {
               Contact
             </a>
             <div className="py-3 px-4">
-              <Button className="w-full">
-                Get a Quote
-              </Button>
+              <a href="#contact">
+                <Button className="w-full">
+                  Get a Quote
+                </Button>
+              </a>
             </div>
           </div>
         </div>

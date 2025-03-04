@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from 'react';
 import { Send, MapPin, Phone, Mail } from 'lucide-react';
 import { Button } from './button';
@@ -41,15 +40,34 @@ const Contact = () => {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formState);
-    // Here you would typically send the form data to your backend
-    alert('Thank you for your message. We will get back to you soon!');
+    
+    // Prepare message content
+    const messageContent = `New Inquiry from ${formState.name}:\n
+Phone: ${formState.phone}\n
+Email: ${formState.email}\n
+Message: ${formState.message}`;
+    
+    // Create SMS links for both numbers
+    const smsLink1 = `sms:+2348035051715?body=${encodeURIComponent(messageContent)}`;
+    const smsLink2 = `sms:+2347066077173?body=${encodeURIComponent(messageContent)}`;
+    
+    // Open first SMS link
+    window.open(smsLink1, '_blank');
+    
+    // After a short delay, open second SMS link
+    setTimeout(() => {
+      window.open(smsLink2, '_blank');
+    }, 500);
+
+    // Reset form
     setFormState({
       name: '',
       email: '',
       phone: '',
       message: '',
     });
+    
+    alert('Your message has been prepared to send via SMS. Please review and send the messages in your messaging app.');
   };
 
   const contactInfo = [
