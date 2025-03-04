@@ -1,3 +1,4 @@
+
 import { useRef, useState, useEffect } from 'react';
 import { Send, MapPin, Phone, Mail } from 'lucide-react';
 import { Button } from './button';
@@ -137,7 +138,7 @@ Message: ${formState.message}`;
               ))}
             </div>
             
-            <div className="mt-12">
+            <div className="mt-8 mb-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Business Hours</h3>
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -153,6 +154,17 @@ Message: ${formState.message}`;
                   <span className="text-gray-900 font-medium">Closed</span>
                 </div>
               </div>
+            </div>
+            
+            <div className="mt-8 rounded-lg overflow-hidden shadow-lg h-[300px] w-full">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d1982.1410763670917!2d7.576819815995429!3d6.485908810046827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1sgreat%20c%20nwogbunka!5e0!3m2!1sen!2sca!4v1738982119966!5m2!1sen!2sca" 
+                className="w-full h-full border-0" 
+                allowFullScreen 
+                loading="lazy"
+                title="Great C Nwogbunka Building Materials Location"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
             </div>
           </div>
           

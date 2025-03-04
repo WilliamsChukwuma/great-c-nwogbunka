@@ -98,6 +98,19 @@ const About = () => {
                 </div>
               ))}
             </div>
+            
+            <div className={`mt-8 rounded-lg overflow-hidden shadow-lg transition-all duration-700 delay-700 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}>
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d1982.1410763670917!2d7.576819815995429!3d6.485908810046827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1sgreat%20c%20nwogbunka!5e0!3m2!1sen!2sca!4v1738982119966!5m2!1sen!2sca" 
+                className="w-full h-[300px] border-0" 
+                allowFullScreen 
+                loading="lazy"
+                title="Great C Nwogbunka Building Materials Location"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
           </div>
         </div>
       </div>
