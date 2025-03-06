@@ -1,8 +1,11 @@
+
 import { useRef, useState, useEffect } from 'react';
 import { Send, MapPin, Phone, Mail } from 'lucide-react';
 import { Button } from './button';
+import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
+  const { toast } = useToast();
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [formState, setFormState] = useState({
@@ -46,14 +49,26 @@ Phone: ${formState.phone}\n
 Email: ${formState.email}\n
 Message: ${formState.message}`;
     
+    // Create SMS links for both phone numbers
     const smsLink1 = `sms:+2348035051715?body=${encodeURIComponent(messageContent)}`;
     const smsLink2 = `sms:+2347066077173?body=${encodeURIComponent(messageContent)}`;
     
-    window.open(smsLink1, '_blank');
+    // Try to open email client with the message
+    const emailSubject = `New Inquiry from ${formState.name}`;
+    const emailBody = messageContent;
+    const mailtoLink = `mailto:greatcnwogbunka@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
     
+    // Open the email first
+    window.location.href = mailtoLink;
+    
+    // After a short delay, open SMS links
     setTimeout(() => {
-      window.open(smsLink2, '_blank');
-    }, 500);
+      window.open(smsLink1, '_blank');
+      
+      setTimeout(() => {
+        window.open(smsLink2, '_blank');
+      }, 500);
+    }, 1000);
 
     setFormState({
       name: '',
@@ -62,7 +77,10 @@ Message: ${formState.message}`;
       message: '',
     });
     
-    alert('Your message has been prepared to send via SMS. Please review and send the messages in your messaging app.');
+    toast({
+      title: "Message sent",
+      description: "Your message has been prepared for email and SMS. Please review and send the messages in your email and messaging apps.",
+    });
   };
 
   const contactInfo = [
@@ -79,7 +97,7 @@ Message: ${formState.message}`;
     { 
       icon: <Mail className="h-6 w-6" />, 
       title: "Email Us", 
-      details: ["info@greatcnwogbunka.com", "sales@greatcnwogbunka.com"]
+      details: ["greatcnwogbunka@gmail.com", "info@greatcnwogbunka.com"]
     }
   ];
 
