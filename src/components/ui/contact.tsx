@@ -1,8 +1,12 @@
-
 import { useRef, useState, useEffect } from 'react';
 import { Send, MapPin, Phone, Mail } from 'lucide-react';
 import { Button } from './button';
 import { useToast } from "@/hooks/use-toast";
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const Contact = () => {
   const { toast } = useToast();
@@ -14,6 +18,7 @@ const Contact = () => {
     phone: '',
     message: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -41,46 +46,71 @@ const Contact = () => {
     setFormState(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    const messageContent = `New Inquiry from ${formState.name}:\n
+    try {
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert([
+          { 
+            name: formState.name,
+            email: formState.email,
+            phone: formState.phone,
+            message: formState.message,
+            created_at: new Date().toISOString()
+          }
+        ]);
+      
+      if (error) {
+        console.error('Error submitting form to Supabase:', error);
+        throw new Error('Failed to submit form');
+      }
+      
+      const messageContent = `New Inquiry from ${formState.name}:\n
 Phone: ${formState.phone}\n
 Email: ${formState.email}\n
 Message: ${formState.message}`;
-    
-    // Create SMS links for both phone numbers
-    const smsLink1 = `sms:+2348035051715?body=${encodeURIComponent(messageContent)}`;
-    const smsLink2 = `sms:+2347066077173?body=${encodeURIComponent(messageContent)}`;
-    
-    // Try to open email client with the message
-    const emailSubject = `New Inquiry from ${formState.name}`;
-    const emailBody = messageContent;
-    const mailtoLink = `mailto:greatcnwogbunka@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    
-    // Open the email first
-    window.location.href = mailtoLink;
-    
-    // After a short delay, open SMS links
-    setTimeout(() => {
-      window.open(smsLink1, '_blank');
+      
+      const smsLink1 = `sms:+2348035051715?body=${encodeURIComponent(messageContent)}`;
+      const smsLink2 = `sms:+2347066077173?body=${encodeURIComponent(messageContent)}`;
+      
+      const emailSubject = `New Inquiry from ${formState.name}`;
+      const emailBody = messageContent;
+      const mailtoLink = `mailto:greatcnwogbunka@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      
+      window.location.href = mailtoLink;
       
       setTimeout(() => {
-        window.open(smsLink2, '_blank');
-      }, 500);
-    }, 1000);
+        window.open(smsLink1, '_blank');
+        
+        setTimeout(() => {
+          window.open(smsLink2, '_blank');
+        }, 500);
+      }, 1000);
 
-    setFormState({
-      name: '',
-      email: '',
-      phone: '',
-      message: '',
-    });
-    
-    toast({
-      title: "Message sent",
-      description: "Your message has been prepared for email and SMS. Please review and send the messages in your email and messaging apps.",
-    });
+      setFormState({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+      });
+      
+      toast({
+        title: "Message sent successfully",
+        description: "Your inquiry has been recorded and notifications sent. We'll get back to you soon!",
+      });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Message sending failed",
+        description: "There was a problem sending your message. Please try again or contact us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -248,9 +278,15 @@ Message: ${formState.message}`;
                 ></textarea>
               </div>
               
-              <Button type="submit" className="w-full sm:w-auto group">
-                Send Message
-                <Send className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <Button 
+                type="submit" 
+                className="w-full sm:w-auto group"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Sending...' : 'Send Message'}
+                {!isSubmitting && (
+                  <Send className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                )}
               </Button>
             </form>
           </div>
