@@ -3,6 +3,12 @@ import { useState, useRef, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { createClient } from '@supabase/supabase-js';
+
+// Create Supabase client
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 interface Review {
   id: string;
@@ -11,13 +17,12 @@ interface Review {
   content: string;
   rating: number;
   date: string;
+  created_at?: string;
 }
 
 const Testimonials = () => {
-  const [reviews, setReviews] = useState<Review[]>(() => {
-    const savedReviews = localStorage.getItem('customer-reviews');
-    return savedReviews ? JSON.parse(savedReviews) : [];
-  });
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [newReview, setNewReview] = useState({
     name: '',
@@ -31,10 +36,54 @@ const Testimonials = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
-  // Save reviews to localStorage whenever they change
+  // Fetch reviews from Supabase on component mount
   useEffect(() => {
-    localStorage.setItem('customer-reviews', JSON.stringify(reviews));
-  }, [reviews]);
+    const fetchReviews = async () => {
+      setIsLoading(true);
+      
+      if (!supabase) {
+        console.error('Supabase client not available');
+        // Fallback to localStorage if Supabase is not available
+        const savedReviews = localStorage.getItem('customer-reviews');
+        if (savedReviews) {
+          setReviews(JSON.parse(savedReviews));
+        }
+        setIsLoading(false);
+        return;
+      }
+      
+      try {
+        console.log('Fetching reviews from Supabase');
+        const { data, error } = await supabase
+          .from('customer_reviews')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error('Error fetching reviews:', error);
+          // Fallback to localStorage if Supabase query fails
+          const savedReviews = localStorage.getItem('customer-reviews');
+          if (savedReviews) {
+            setReviews(JSON.parse(savedReviews));
+          }
+        } else {
+          console.log('Reviews fetched successfully:', data);
+          setReviews(data || []);
+        }
+      } catch (error) {
+        console.error('Error in fetchReviews:', error);
+        // Fallback to localStorage if try/catch fails
+        const savedReviews = localStorage.getItem('customer-reviews');
+        if (savedReviews) {
+          setReviews(JSON.parse(savedReviews));
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -66,7 +115,7 @@ const Testimonials = () => {
     setNewReview(prev => ({ ...prev, rating }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!newReview.name || !newReview.content) {
@@ -78,27 +127,79 @@ const Testimonials = () => {
       return;
     }
     
+    setIsSubmitting(true);
+    
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString();
+    
     const review: Review = {
       id: Date.now().toString(),
       ...newReview,
-      date: new Date().toLocaleDateString()
+      date: formattedDate
     };
     
-    setReviews(prev => [review, ...prev]);
-    setNewReview({
-      name: '',
-      company: '',
-      content: '',
-      rating: 5
-    });
-    
-    setIsFormOpen(false);
-    
-    toast({
-      title: "Review submitted",
-      description: "Thank you for sharing your experience!",
-    });
+    try {
+      if (supabase) {
+        console.log('Saving review to Supabase');
+        const { data, error } = await supabase
+          .from('customer_reviews')
+          .insert([
+            { 
+              name: review.name,
+              company: review.company,
+              content: review.content,
+              rating: review.rating,
+              date: formattedDate,
+              created_at: currentDate.toISOString()
+            }
+          ])
+          .select();
+        
+        if (error) {
+          console.error('Error saving review to Supabase:', error);
+          // Fall back to localStorage
+          const allReviews = [review, ...reviews];
+          localStorage.setItem('customer-reviews', JSON.stringify(allReviews));
+          setReviews(allReviews);
+        } else {
+          console.log('Review saved to Supabase:', data);
+          // Update with the data from Supabase
+          const newReviewFromDB = data[0];
+          setReviews(prev => [newReviewFromDB, ...prev]);
+        }
+      } else {
+        // Fallback to localStorage
+        const allReviews = [review, ...reviews];
+        localStorage.setItem('customer-reviews', JSON.stringify(allReviews));
+        setReviews(allReviews);
+      }
+      
+      setNewReview({
+        name: '',
+        company: '',
+        content: '',
+        rating: 5
+      });
+      
+      setIsFormOpen(false);
+      
+      toast({
+        title: "Review submitted",
+        description: "Thank you for sharing your experience!",
+      });
+    } catch (error) {
+      console.error('Error in handleSubmit:', error);
+      toast({
+        title: "Error submitting review",
+        description: "There was a problem saving your review. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const toggleForm = () => {
     setIsFormOpen(prev => !prev);
@@ -223,7 +324,11 @@ const Testimonials = () => {
         <div className={`space-y-8 max-w-4xl mx-auto transition-all duration-1000 ${
           isVisible ? 'opacity-100 transform-none' : 'opacity-0 translate-y-10'
         }`}>
-          {reviews.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12 bg-white rounded-xl shadow-md">
+              <p className="text-gray-500">Loading reviews...</p>
+            </div>
+          ) : reviews.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-xl shadow-md">
               <p className="text-gray-500 mb-4">No reviews yet. Be the first to share your experience!</p>
               {!isFormOpen && (
