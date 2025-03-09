@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Navbar from "@/components/ui/navbar";
 import Hero from "@/components/ui/hero";
 import ProductCategories from "@/components/ui/product-categories";
@@ -12,17 +12,23 @@ import Footer from "@/components/ui/footer";
 const Index = () => {
   useEffect(() => {
     // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href') || '');
+    const handleAnchorClick = function(e: Event) {
+      e.preventDefault();
+      const anchor = this as HTMLAnchorElement;
+      const targetId = anchor.getAttribute('href');
+      if (targetId && targetId.startsWith('#')) {
+        const target = document.querySelector(targetId);
         if (target) {
           window.scrollTo({
             top: (target as HTMLElement).offsetTop - 80,
             behavior: 'smooth'
           });
         }
-      });
+      }
+    };
+    
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', handleAnchorClick);
     });
     
     // Intersection Observer for page sections (for additional animations if needed)
@@ -43,7 +49,7 @@ const Index = () => {
     
     return () => {
       document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.removeEventListener('click', function (e) {});
+        anchor.removeEventListener('click', handleAnchorClick);
       });
       
       document.querySelectorAll('section').forEach(section => {

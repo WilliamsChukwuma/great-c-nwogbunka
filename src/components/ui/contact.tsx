@@ -1,12 +1,14 @@
+
 import { useRef, useState, useEffect } from 'react';
 import { Send, MapPin, Phone, Mail } from 'lucide-react';
 import { Button } from './button';
 import { useToast } from "@/hooks/use-toast";
 import { createClient } from '@supabase/supabase-js';
 
+// Create Supabase client only if credentials are available
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 const Contact = () => {
   const { toast } = useToast();
@@ -51,21 +53,29 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase
-        .from('contact_submissions')
-        .insert([
-          { 
-            name: formState.name,
-            email: formState.email,
-            phone: formState.phone,
-            message: formState.message,
-            created_at: new Date().toISOString()
+      // Only try to store in Supabase if client is available
+      if (supabase) {
+        try {
+          const { error } = await supabase
+            .from('contact_submissions')
+            .insert([
+              { 
+                name: formState.name,
+                email: formState.email,
+                phone: formState.phone,
+                message: formState.message,
+                created_at: new Date().toISOString()
+              }
+            ]);
+          
+          if (error) {
+            console.error('Error submitting form to Supabase:', error);
+            // Continue with client-side methods even if Supabase fails
           }
-        ]);
-      
-      if (error) {
-        console.error('Error submitting form to Supabase:', error);
-        throw new Error('Failed to submit form');
+        } catch (supabaseError) {
+          console.error('Supabase error:', supabaseError);
+          // Continue with client-side methods if Supabase throws an error
+        }
       }
       
       const messageContent = `New Inquiry from ${formState.name}:\n
@@ -82,6 +92,7 @@ Message: ${formState.message}`;
       
       window.location.href = mailtoLink;
       
+      // Set a short timeout to make sure the mailto link has time to open
       setTimeout(() => {
         window.open(smsLink1, '_blank');
         
