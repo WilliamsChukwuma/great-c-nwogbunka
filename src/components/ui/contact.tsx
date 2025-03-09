@@ -53,10 +53,17 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      // Only try to store in Supabase if client is available
+      console.log("Processing contact form submission");
+      const messageContent = `New Inquiry from ${formState.name}:\n
+Phone: ${formState.phone}\n
+Email: ${formState.email}\n
+Message: ${formState.message}`;
+      
+      // We'll try Supabase first, but continue even if it fails
       if (supabase) {
         try {
-          const { error } = await supabase
+          console.log("Attempting to save to Supabase");
+          const { data, error } = await supabase
             .from('contact_submissions')
             .insert([
               { 
@@ -66,23 +73,24 @@ const Contact = () => {
                 message: formState.message,
                 created_at: new Date().toISOString()
               }
-            ]);
+            ])
+            .select();
           
           if (error) {
-            console.error('Error submitting form to Supabase:', error);
+            console.log("Supabase submission error:", error);
             // Continue with client-side methods even if Supabase fails
+          } else {
+            console.log("Successfully saved to Supabase:", data);
           }
         } catch (supabaseError) {
           console.error('Supabase error:', supabaseError);
           // Continue with client-side methods if Supabase throws an error
         }
+      } else {
+        console.log("Supabase client not available, proceeding with direct messaging");
       }
       
-      const messageContent = `New Inquiry from ${formState.name}:\n
-Phone: ${formState.phone}\n
-Email: ${formState.email}\n
-Message: ${formState.message}`;
-      
+      // Always proceed with the client-side methods as backup
       const smsLink1 = `sms:+2348035051715?body=${encodeURIComponent(messageContent)}`;
       const smsLink2 = `sms:+2347066077173?body=${encodeURIComponent(messageContent)}`;
       
@@ -90,6 +98,7 @@ Message: ${formState.message}`;
       const emailBody = messageContent;
       const mailtoLink = `mailto:greatcnwogbunka@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
       
+      console.log("Opening email client with formatted message");
       window.location.href = mailtoLink;
       
       // Set a short timeout to make sure the mailto link has time to open
