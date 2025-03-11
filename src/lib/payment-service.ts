@@ -6,6 +6,9 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Default destination account
+const DEFAULT_DESTINATION_ACCOUNT = '3065836706';
+
 export interface PaymentRequest {
   amount: number;
   email: string;
@@ -14,6 +17,7 @@ export interface PaymentRequest {
   bank?: string;
   accountNumber?: string;
   reference?: string;
+  destinationAccount?: string;
 }
 
 export interface PaymentResponse {
@@ -28,6 +32,9 @@ export const processNigerianPayment = async (paymentData: PaymentRequest): Promi
   try {
     console.info('Processing Nigerian payment', paymentData);
     
+    // Use the provided destination account or fall back to the default
+    const destinationAccount = paymentData.destinationAccount || DEFAULT_DESTINATION_ACCOUNT;
+    
     // Store payment request in Supabase
     const { data, error } = await supabase
       .from('payment_requests')
@@ -39,6 +46,7 @@ export const processNigerianPayment = async (paymentData: PaymentRequest): Promi
           phone: paymentData.phone,
           bank: paymentData.bank,
           account_number: paymentData.accountNumber,
+          destination_account: destinationAccount,
           reference: paymentData.reference || `REF-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
           status: 'pending'
         }
@@ -57,7 +65,7 @@ export const processNigerianPayment = async (paymentData: PaymentRequest): Promi
     // For demo purposes, we'll simulate a successful payment
     return {
       success: true,
-      message: 'Payment request processed successfully',
+      message: `Payment request processed successfully. Funds will be sent to account: ${destinationAccount}`,
       reference: data[0].reference,
       transactionId: data[0].id
     };

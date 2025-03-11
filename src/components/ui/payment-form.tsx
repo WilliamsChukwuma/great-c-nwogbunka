@@ -61,13 +61,14 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         phone: formData.phone,
         bank: formData.bank,
         accountNumber: formData.accountNumber,
-        reference: `PAY-${Date.now()}`
+        reference: `PAY-${Date.now()}`,
+        destinationAccount: '3065836706' // The specific account to receive the payment
       });
       
       if (response.success) {
         toast({
           title: "Payment Initiated",
-          description: "Your payment has been initiated successfully.",
+          description: response.message,
         });
         if (onSuccess && response.reference) {
           onSuccess(response.reference);
