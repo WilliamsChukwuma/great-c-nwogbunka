@@ -50,9 +50,7 @@ const Navbar = () => {
             <a href="#services" className="font-medium text-gray-900 hover:text-primary transition-colors">
               Services
             </a>
-            <Link to="/payment" className="font-medium text-gray-900 hover:text-primary transition-colors">
-              Payment
-            </Link>
+            {/* Payment link removed */}
             <a href="#contact" className="font-medium text-gray-900 hover:text-primary transition-colors">
               Contact
             </a>
@@ -117,9 +115,7 @@ const Navbar = () => {
             <a href="#services" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
               Services
             </a>
-            <Link to="/payment" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
-              Payment
-            </Link>
+            {/* Payment link removed from mobile menu */}
             <a href="#contact" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
               Contact
             </a>

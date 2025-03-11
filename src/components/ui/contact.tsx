@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from 'react';
 import { Send, MapPin, Phone, Mail } from 'lucide-react';
 import { Button } from './button';
@@ -21,6 +20,7 @@ const Contact = () => {
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -90,26 +90,10 @@ Message: ${formState.message}`;
         console.log("Supabase client not available, proceeding with direct messaging");
       }
       
-      // Always proceed with the client-side methods as backup
-      const smsLink1 = `sms:+2348035051715?body=${encodeURIComponent(messageContent)}`;
-      const smsLink2 = `sms:+2347066077173?body=${encodeURIComponent(messageContent)}`;
+      // Remove the navigation to external services that lead to a blank page
+      // Instead, just show a confirmation message within the page
+      setShowConfirmation(true);
       
-      const emailSubject = `New Inquiry from ${formState.name}`;
-      const emailBody = messageContent;
-      const mailtoLink = `mailto:greatcnwogbunka@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-      
-      console.log("Opening email client with formatted message");
-      window.location.href = mailtoLink;
-      
-      // Set a short timeout to make sure the mailto link has time to open
-      setTimeout(() => {
-        window.open(smsLink1, '_blank');
-        
-        setTimeout(() => {
-          window.open(smsLink2, '_blank');
-        }, 500);
-      }, 1000);
-
       setFormState({
         name: '',
         email: '',
@@ -131,6 +115,10 @@ Message: ${formState.message}`;
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleNewInquiry = () => {
+    setShowConfirmation(false);
   };
 
   const contactInfo = [
@@ -233,82 +221,107 @@ Message: ${formState.message}`;
           <div className={`lg:col-span-3 transition-all duration-700 ${
             isVisible ? 'opacity-100 transform-none' : 'opacity-0 translate-x-10'
           }`}>
-            <form onSubmit={handleSubmit} className="glass p-8 rounded-xl shadow-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Your Name
+            {showConfirmation ? (
+              <div className="glass p-8 rounded-xl shadow-lg flex flex-col items-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h3>
+                <p className="text-gray-600 text-center mb-6">
+                  Your message has been received. Our team will contact you shortly using the information you provided.
+                </p>
+                <div className="bg-gray-50 p-4 rounded-lg w-full mb-6">
+                  <p className="text-sm text-gray-500 mb-1">Alternatively, you can contact us directly:</p>
+                  <div className="flex flex-col space-y-1">
+                    <a href="tel:+2347066077173" className="text-primary hover:underline">+234 706 607 7173</a>
+                    <a href="tel:+2348035051715" className="text-primary hover:underline">+234 803 505 1715</a>
+                    <a href="mailto:greatcnwogbunka@gmail.com" className="text-primary hover:underline">greatcnwogbunka@gmail.com</a>
+                  </div>
+                </div>
+                <Button onClick={handleNewInquiry}>
+                  Send Another Message
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="glass p-8 rounded-xl shadow-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formState.name}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none"
+                      placeholder="Kenechukwu Okorie"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formState.email}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none"
+                      placeholder="john@example.com"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mb-6">
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
                   </label>
                   <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formState.name}
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formState.phone}
                     onChange={handleChange}
-                    required
                     className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none"
-                    placeholder="Kenechukwu Okorie"
+                    placeholder="+234 123 456 7890"
                   />
                 </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
+                
+                <div className="mb-6">
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                    Your Message
                   </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formState.email}
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formState.message}
                     onChange={handleChange}
                     required
+                    rows={5}
                     className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none"
-                    placeholder="john@example.com"
-                  />
+                    placeholder="Tell us about your project or inquiry..."
+                  ></textarea>
                 </div>
-              </div>
-              
-              <div className="mb-6">
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formState.phone}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none"
-                  placeholder="+234 123 456 7890"
-                />
-              </div>
-              
-              <div className="mb-6">
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                  Your Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formState.message}
-                  onChange={handleChange}
-                  required
-                  rows={5}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none"
-                  placeholder="Tell us about your project or inquiry..."
-                ></textarea>
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full sm:w-auto group"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Sending...' : 'Send Message'}
-                {!isSubmitting && (
-                  <Send className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                )}
-              </Button>
-            </form>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full sm:w-auto group"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                  {!isSubmitting && (
+                    <Send className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  )}
+                </Button>
+              </form>
+            )}
           </div>
         </div>
       </div>
