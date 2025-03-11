@@ -48,12 +48,6 @@ const Payment = () => {
         ) : (
           <div className="max-w-md mx-auto">
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-4">Sample Product</h2>
-              <p className="mb-4">
-                This is a demonstration of Nigerian payment methods integration.
-                Choose an amount and proceed to payment.
-              </p>
-              
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
                   Select Amount (₦)
