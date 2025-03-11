@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { Search, Menu, X, ShoppingCart, User } from 'lucide-react';
 import { Button } from './button';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -27,18 +29,18 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <a href="#" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <span className="font-display text-xl sm:text-2xl font-bold text-brand-950">
                 Great C <span className="text-primary">Nwogbunka</span>
               </span>
-            </a>
+            </Link>
           </div>
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#" className="font-medium text-gray-900 hover:text-primary transition-colors">
+            <Link to="/" className="font-medium text-gray-900 hover:text-primary transition-colors">
               Home
-            </a>
+            </Link>
             <a href="#contact" className="font-medium text-gray-900 hover:text-primary transition-colors">
               Products
             </a>
@@ -48,6 +50,9 @@ const Navbar = () => {
             <a href="#services" className="font-medium text-gray-900 hover:text-primary transition-colors">
               Services
             </a>
+            <Link to="/payment" className="font-medium text-gray-900 hover:text-primary transition-colors">
+              Payment
+            </Link>
             <a href="#contact" className="font-medium text-gray-900 hover:text-primary transition-colors">
               Contact
             </a>
@@ -100,9 +105,9 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white border-t">
           <div className="container mx-auto px-4 py-4 space-y-1">
-            <a href="#" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
+            <Link to="/" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
               Home
-            </a>
+            </Link>
             <a href="#contact" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
               Products
             </a>
@@ -112,6 +117,9 @@ const Navbar = () => {
             <a href="#services" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
               Services
             </a>
+            <Link to="/payment" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
+              Payment
+            </Link>
             <a href="#contact" className="block py-3 px-4 font-medium hover:bg-gray-50 rounded-md">
               Contact
             </a>
